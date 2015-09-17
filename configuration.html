@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Watchapp Configuration</title>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
+    </head>
+    <body>
+        <h1>Watchapp Configuration</h1>
+
+        <script id="hb-template" type="text/x-handlebars-template">
+        {{#if code}}<p>Google Calendar is setup.</p>{{/if}}
+        {{#if code_error}}<p style="color: red">{{code_error}}</p>{{/if}}
+
+        {{#unless code}}
+        <p><a href="https://accounts.google.com/o/oauth2/auth?response_type=code&access_type=offline&prompt=consent%20select_account&client_id=173981847866-ko5d8sntsjdu16h9paht142jmpn1jo7g.apps.googleusercontent.com&redirect_uri={{CATCHAUTH_URL}}&scope=https://www.googleapis.com/auth/calendar.readonly">
+            Give Watchapp access to your Google Calendar
+        </a></p>
+        {{/unless}}
+        {{#if code}}<p><a href="javascript:void(0)" id="clear-code">Stop using your Google Calendar</a></p>
+
+        <p>Clicking the link above does not prevent the Watchapp from
+        having access to your calendar, it just tells it to stop using it. To
+        completely disable access to your calendar, you need to visit the <a
+        completely disable access to your calendar, you need to visit the <a
+            href="https://security.google.com/settings/security/permissions?pli=1">Google
+            Account Permissions</a> page to revoke access to this
+        watch application.</p>
+ <h2>Now press Save!</h2>
+        {{/if}}
+
+        <form>
+            <input type="hidden" id="code" name="code" value="{{code}}">
+            <input type="button" id="finished" name="submit" value="Save">
+        </form>
+        </script>
+
+        <script type="text/javascript">
+            var json = window.location.hash;
+            if (json) {
+                json = json.substring(1);
+            }
+            else {
+                json = "{}";
+            }
+
+            var conf = JSON.parse(json);
+            var source = $("#hb-template").html();
+            var template = Handlebars.compile(source);
+            
+            conf.CONFIG_URL = "https://dl.dropboxusercontent.com/s/e68sf89n8dpxuob/configuration.html#"
+            conf.CATCHAUTH_URL = "https://dl.dropboxusercontent.com/s/14rkuevy1zes8pv/catchauth.html";
+
+            $('body').append(template(conf));
+
+            $('#clear-code').on('click', function() {
+                conf.code = '';
+                window.location.href = conf.CONFIG_URL + JSON.stringify(conf);
+                window.location.reload();
+            });
+
+function getQueryParam(variable, defaultValue) {
+  // Find all URL parameters
+  var query = location.search.substring(1);
+  var vars = query.split('&');
+  for (var i = 0; i < vars.length; i++) {
+    var pair = vars[i].split('=');
+
+    // If the query variable parameter is found, decode it to use and return it for use
+    if (pair[0] === variable) {
+      return decodeURIComponent(pair[1]);
+    }
+  }
+  return defaultValue || false;
+}
+
+
+            $('#finished').click(function() {
+
+
+// Something like this to get query variables.
+
+
+// Set the return URL depending on the runtime environment
+var return_to = getQueryParam('return_to', 'pebblejs://close#');
+//var return_to = getQueryParam('return_to', 'https:////cloudpebble.net/ide/emulator/config?');
+//var return_to = getQueryParam('return_to', 'pebblejs://close#');
+
+var code=$("#code").val();
+
+
+document.location.href = return_to + encodeURIComponent(JSON.stringify({
+                    "code": $("#code").val()
+                }));
+
+
+            });
+        </script>
+    </body>
+</html>
